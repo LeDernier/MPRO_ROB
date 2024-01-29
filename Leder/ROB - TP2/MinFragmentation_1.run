@@ -1,0 +1,11 @@
+data MinFragmentation_1.dat;
+
+option solver cplexamp;
+
+for{k in 1..10}{
+	reset;
+	model MinFragmentation_1.mod;
+	let lambda := 20 + 5*k;
+	solve;	
+}
+

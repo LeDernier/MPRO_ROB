@@ -1,0 +1,7 @@
+reset;
+
+model ExplForet_1.mod;
+data ExplForet_ampl2.dat;
+option solver cplexamp;
+
+solve;

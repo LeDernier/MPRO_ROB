@@ -1,0 +1,62 @@
+/*
+In this file, we will generate some random instances for the natural reserves problem.
+..We will focus on the following parameters:
+1. n=m := number of rows/columns in the grid 
+2. p=q := number of species of each type
+3. k/n := proportion of the species with respect to the number of zones
+4. rho := support density/proportion of the zones i with p_i,k > 0 for all k
+
+To satisfy the constraint of the survival probability we will take p_i,k uniformly in 
+..{0.1,0.2,0.3,0.4,0.5} and the same 4 scenarios for the values of alpha_k (>= 0.5).
+..That is, we will generate feasible instances. Also, we will consider constant unitary 
+..costs to simplify the analysis.
+*/
+
+reset;
+
+
+
+
+param dataName symbolic default "random_instances/ReserveNaturelles_ampl_rand";
+
+
+#printf "inst, n, k, k/n, density, solution_time" > (dataName);
+
+param zones_idx_max := 5;		# number of values of n,m
+param species_idx_max := 5; 	# number of values of k
+param dens_idx_max := 5;		# number of values of rho
+param alpha_idx_max := 4;		# number of values of alpha (fixed)
+param instance_idx_max := 5;	# number of instances for each 5-uplet (n,m,k,rho)		
+
+param n default 0;
+param m default 0;
+param p default 0;
+param q default 0;
+param rho default 0;
+param species_size default 0;	# number of species/number of cells in the grid 
+param supp_size default 0;		# number of cells such that p_i,k > 0 for all k
+
+param alpha_values : 1 2 := 	# target survival probability for the first and second half of the species
+1 0.5 0.5
+2 0.9 0.5
+3 0.5 0.9
+4 0.8 0.6;
+
+set species_density := {0.05,0.1,0.2};
+set supp_prob_density := {0.3,0.5,0.7};
+
+
+for{size in 1..cells_idx_max}{
+	let n := size*10;
+	let m := size*10;
+	for{p in }{
+		
+	}
+	for{_density in 1..dens_idx_max}{
+		let rho := _density/dens_idx_max;
+		for{inst in 1..instance_idx_max}{
+			let supp_size = ceil(rho*n*m);				# number of cells i with p_i,k > 0 for all k  
+			#printf "%d, %d, %d, %.2f, %.1f, %.3f", inst, n,   > (dataName);
+		}
+	}
+}

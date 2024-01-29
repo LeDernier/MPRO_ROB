@@ -1,0 +1,10 @@
+reset;
+
+model ExplForet_2.mod;
+data ExplForet_ampl.dat;
+option solver cplexamp;
+#option cplex_options "relax";
+option relax_integrality 1;
+option cplex_options "mipdisplay=2";
+
+solve;

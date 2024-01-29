@@ -1,0 +1,38 @@
+reset;
+model ReserveNaturelles_1.mod;
+option solver cplexamp;
+option cplex_options "mipdisplay=0";
+#option cplex_options "timing=1";
+
+param proba_survie{k in PQ} default 1;
+var z{i in N,j in M} default 0;
+param dataName symbolic = "results/results_2.txt";
+
+for{inst in 1..4}{
+	printf("SCENARIO_" & inst & "\n\n") > (dataName);
+	data("reserve_naturelle_ampl" & inst & ".dat");
+	#data "reserve_naturelle_ampl" & char(inst) & ".dat";
+	solve;
+	print solve_message >> (dataName);
+	
+	for{k in PQ}{
+		for{i in N, j in M}{
+			let proba_survie[k] := proba_survie[k]*(1-proba[k,i,j]*(if k in P then y[i,j] else x[i,j]));	# recursive calculation of the probability of extinction/disappearance
+		}
+		let proba_survie[k] := 1 - 	proba_survie[k]; 
+	}
+	
+	for{i in N, j in M}{
+		let z[i,j] := x[i,j].val + y[i,j].val;
+	}
+	
+	
+	#display x;
+	#display y;
+	#display _total_solve_elapsed_time;	# time taken by the solver
+	display _total_solve_time > (dataName);			# time taken by the solver and ampl
+	display z > (dataName); # x + y
+	display proba_survie > (dataName);
+	reset data;
+	printf "\n" > (dataName);
+}
