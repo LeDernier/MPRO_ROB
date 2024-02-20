@@ -1,0 +1,26 @@
+/*
+To satisfy the constraint of the survival probability we will take p_i,k uniformly in 
+..{0.1,0.2,0.3,0.4,0.5} and the same 4 scenarios for the values of alpha_k (>= 0.5).
+..That is, we will generate feasible instances.
+*/
+
+param zones_idx_max := 4;		# number of values of n,m; default 5
+param alpha_idx_max := 4;		# number of values of alpha (fixed, see the .dat file); default 4
+param instance_idx_max := 5;	# number of instances for each 5-uplet (n,m,k,rho,alpha); default 5
+#param species_idx_max := 5; 	# number of values of k
+#param dens_idx_max := 5;		# number of values of rho
+#set species_density := {0.05,0.1,0.2};		# values for k/(n*m)
+#set supp_prob_density := {0.3,0.5,0.7};		# values for rho
+
+set species_density := 0.05 0.1 0.2;		# values for k/(n*m)
+set supp_prob_density := 0.3 0.5 0.7;		# values for rho
+
+
+param c_min := 4;		# cost min (fixed)
+param c_max := 8;		# cost min (fixed)
+
+param alpha_values : 1 2 := 
+1 0.5 0.5
+2 0.9 0.5
+3 0.5 0.9
+4 0.8 0.6 ;

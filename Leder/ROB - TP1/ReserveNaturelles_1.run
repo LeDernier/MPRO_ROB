@@ -30,7 +30,8 @@ for{inst in 1..4}{
 	#display x;
 	#display y;
 	#display _total_solve_elapsed_time;	# time taken by the solver
-	display _total_solve_time > (dataName);			# time taken by the solver and ampl
+	#display _total_solve_time > (dataName);			# time taken by the solver and ampl
+	printf "_total_solve_time -> %.3f\n",_total_solve_time > (dataName);
 	display z > (dataName); # x + y
 	display proba_survie > (dataName);
 	reset data;

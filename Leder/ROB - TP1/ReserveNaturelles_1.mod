@@ -3,8 +3,6 @@ param m;
 param p;
 param q;
 
-
-
 set N := 1..n;			# horizontal index (grid)
 set M := 1..m;			# vertical index (grid)
 set P := 1..p;			# in-danger speces
