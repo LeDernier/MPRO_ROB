@@ -1,0 +1,10 @@
+reset;
+
+model ExplForet_ampl.mod;
+data ExplForet_ampl_2.dat;
+option solver cplexamp;
+#option relax_integrality 1;
+
+solve;
+
+display _total_solve_time;
