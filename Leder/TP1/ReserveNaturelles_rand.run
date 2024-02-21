@@ -1,0 +1,104 @@
+
+/*
+In this file, we will solve some random instances for the natural reserves problem.
+..We will focus on the following parameters:
+1. n=m := number of rows/columns in the grid 
+2. p=q := number of species of each type
+3. rho_spec = p/n^2 := proportion of the species with respect to the number of zones
+4. rho_supp := support density/proportion of the zones i with p_i,k > 0 for all k
+
+The two metrics used to evaluate the performance of the models are:
+i) sol_time := the solution time
+ii) nodes := the number of B&B nodes developped.
+*/
+
+reset;
+
+param zones_idx_max;		# number of values of n,m
+param alpha_idx_max;		# number of values of alpha (fixed, see the .dat file)
+param instance_idx_max;		# number of instances for each 5-uplet (n,m,k,rho,alpha)
+
+set species_density;		# values for k/(n*m)
+set supp_prob_density;		# values for rho
+param c_min;		# cost min (fixed)
+param c_max;		# cost min (fixed)
+param alpha_values{1..alpha_idx_max,1..2};
+
+data ReserveNaturelles_rand_instance_gen.dat;
+
+param n_ default 0;
+param m_ default 0;
+param p_ default 0;
+param q_ default 0;
+param rho default 0;
+param species_size default 0;	# number of species
+param supp_size default 0;		# number of cells such that p_i,k > 0 for all k
+param rn default 0; 			# random number
+param row default 0; 			# row_index (i)
+param sol_idx default 0;		# solution_index in all the tests
+
+
+model ReserveNaturelles_1.mod;
+#option solver cplexamp;
+#option cplex_options "mipdisplay=0";
+#option cplex_options "timing=1";
+
+param proba_survie{k in PQ} default 1;
+var z{i in N,j in M} default 0;
+param fileResultsName symbolic default "results/results_rand.txt";
+param fileInstancePrefixName symbolic default "random_instances/ReserveNaturelles_ampl_rand";
+param fileInstanceFullName symbolic default "";
+param fileTempRunName symbolic default "runme_temp.run";
+
+
+#printf "n, p, rho_spec, rho_supp, alpha_scnr, inst, sol_time, nodes\n" >> (fileResultsName);
+printf "n, p, rho_spec, rho_supp, alpha_scnr, inst, status, sol_time\n" > (fileResultsName); # nodes not added, too complicated
+
+
+for{size in 1..zones_idx_max}{	# 5*3*3*4*5
+	let n_ := size*5;
+	let m_ := size*5;
+	for{rho_k in species_density}{
+		let p_ := ceil(rho_k*n_*m_/4);
+		let q_ := ceil(rho_k*n_*m_/4);
+		for{rho_prob in supp_prob_density}{
+			let supp_size := ceil(rho_prob*n_*m_);
+			for{alpha_scnr in 1..alpha_idx_max}{
+				for{inst in 1..instance_idx_max}{
+					let fileInstanceFullName := (fileInstancePrefixName) & "_nm" & (n_) & "_pq" & (p_) 
+										& "_rhop" & (rho_prob) & "_alpha" & (alpha_scnr)
+										& "_inst" & (inst) & ".dat";
+										
+					#printf "\n%d, %d, %.3f, %.2f, %d, %d",  
+					#		n_, p_, p_/n_**2, rho_prob, alpha_scnr, inst >> (fileResultsName);
+							
+					#close (fileResultsName);			
+						
+					## executing the model through code generation (code stored in a temporary file)
+					printf "\nreset;\n" > (fileTempRunName);
+					printf "model ReserveNaturelles_1.mod;\n" >> (fileTempRunName);
+					printf "option solver cplexamp;\n" >> (fileTempRunName);
+					printf "option cplex_options 'mipdisplay=0';\n" >> (fileTempRunName);
+					
+					printf "data('%s');\n", (fileInstanceFullName) >> (fileTempRunName);
+					printf "solve;\n" >> (fileTempRunName);
+					
+					printf "printf '\%d,\%d,\%.3f,\%.2f,\%d,\%d',  %d, %d, %.3f, %.2f, %d, %d >> %s;\n",  
+							n_, p_, p_/n_**2, rho_prob, alpha_scnr, inst, (fileResultsName) >> (fileTempRunName);
+
+					printf "printf ',\%s,\%.3f\\n', solve_result,_total_solve_time >> '%s';\n", (fileResultsName) >> (fileTempRunName);
+					
+					
+					
+					#printf ";\n" >> (fileResultsName);
+					#close (fileResultsName);
+				}
+			}
+		}
+	}
+}
+
+close (fileResultsName);
+
+close (fileTempRunName);
+include "runme_temp.run";
