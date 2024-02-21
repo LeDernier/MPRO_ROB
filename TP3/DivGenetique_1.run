@@ -1,0 +1,63 @@
+reset;
+model DivGenetique_1.mod;
+data DivGenetique_1.dat;
+
+option solver cplexamp;
+option cplex_options "mipdisplay=0";
+
+param dataName symbolic = "results/results_2.txt";
+let init := 0.0001;
+
+# first scenario
+let x_UB := 3;
+
+solve;
+printf("SCENARIO_1\n\n") > (dataName);
+printf "_total_solve_time -> %.3f\n",_total_solve_time > (dataName);
+print solve_message > (dataName);
+display x > (dataName);
+
+param true_expectation default 0;
+param proba_dis{p in 1..P, g in 1..G, a in A} default 1;	# probability of dissapereance
+
+for{p in 1..P, g in 1..G, a in A}{
+	for{n in 1..N}{
+		if x[n].val > 0 then {
+			let proba_dis[p,g,a] := proba_dis[p,g,a]*(1 - proba[n,p,g,a])**x[n].val;
+		}
+	}
+	let true_expectation := true_expectation + proba_dis[p,g,a];
+}
+
+display proba_dis > (dataName);
+printf "expectation = %.6f\n", true_expectation > (dataName);
+printf "lower bound = %.6f\n", expectation > (dataName);										# lower-bound of the true expectation
+
+
+
+# second scenario
+let x_UB := 2;
+
+solve;
+printf("\nSCENARIO_2\n\n") > (dataName);
+printf "_total_solve_time -> %.3f\n",_total_solve_time > (dataName);
+print solve_message > (dataName);
+display x > (dataName);
+
+let true_expectation := 0;
+for{p in 1..P, g in 1..G, a in A}{
+	let proba_dis[p,g,a] := 1;	# probability of dissapereance
+}
+
+for{p in 1..P, g in 1..G, a in A}{
+	for{n in 1..N}{
+		if x[n].val > 0 then {
+			let proba_dis[p,g,a] := proba_dis[p,g,a]*(1 - proba[n,p,g,a])**x[n].val;
+		}
+	}
+	let true_expectation := true_expectation + proba_dis[p,g,a];
+}
+
+display proba_dis > (dataName);
+printf "expectation = %.6f\n", true_expectation > (dataName);
+printf "lower bound = %.6f\n", expectation > (dataName);										# lower-bound of the true expectation
