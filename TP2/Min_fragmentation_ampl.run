@@ -1,0 +1,22 @@
+reset;
+
+model Min_fragmentation_ampl.mod;
+data Min_fragmentation_ampl2.dat;
+option solver cplexamp;
+
+solve;
+let t := 1;
+repeat until mean_distance <= 1e-6 {
+	let lambda := sum{(i1,j1) in S, (i2,j2) in S} (y[i1,j1,i2,j2] * d[i1,j1,i2,j2]) / sum{(i,j) in S} (x[i,j]);
+	solve;	
+	let t := t+1;
+	if t > 5 then {
+		break;
+	}
+};
+
+display _total_solve_time;
+
+
+
+
